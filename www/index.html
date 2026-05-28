@@ -2,14 +2,44 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>UBON-RADAR</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THAI-RADAR V10.2</title>
 <style>
-html,body{margin:0;padding:0;height:100%;background:#000;overflow:hidden}
-iframe{border:0;width:100vw;height:100vh;display:block}
+:root{--bg:#000814;--fg:#00bfff;--card:#001d3d}
+*{box-sizing:border-box;font-family:system-ui}
+body{margin:0;background:var(--bg);color:var(--fg)}
+header{padding:12px;text-align:center;border-bottom:1px solid var(--fg);font-weight:700}
+#radar{position:relative;height:46vh;display:flex;align-items:center;justify-content:center}
+canvas{width:90vmin;height:90vmin}
+#logo{position:absolute;width:18vmin;height:18vmin;border-radius:50%;border:2px solid var(--fg);background:#000}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
+.card{background:var(--card);border:1px solid var(--fg);border-radius:8px;padding:8px;font-size:13px}
+#log{height:18vh;overflow:auto;font-family:monospace;font-size:11px;background:#000;padding:4px;white-space:pre-wrap}
+button{background:var(--fg);color:#000;border:0;padding:8px 10px;border-radius:6px;font-weight:700;margin:2px}
+.status{color:#00bfff}.warn{color:#ffaa00}.danger{color:#ff0040;animation:blink .5s infinite}
+@keyframes blink{50%{opacity:.2}}
 </style>
 </head>
 <body>
-<iframe src="https://candid-moonbeam-e3172a.netlify.app/" allow="geolocation; camera; microphone"></iframe>
+<header>THAI-RADAR V10.2</header>
+<div id="radar"><canvas id="c"></canvas><img id="logo" src="logo.png" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzAwMDgxNCIgc3Ryb2tlPSIjMDBiZmZmIiBzdHJva2Utd2lkdGg9IjQiLz48dGV4dCB4PSI1MCIgeT0iNTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMGJmZmYiIGZvbnQtc2l6ZT0iMTgiPlRIQUk8L3RleHQ+PC9zdmc+'"></div>
+<div class="grid">
+ <div class="card"><h3>สถานะ</h3><div id="status" class="status">ทำงาน</div></div>
+ <div class="card"><h3>ภัย</h3><div id="threat">-</div></div>
+ <div class="card"><h3>IP</h3><div id="ip">-</div></div>
+ <div class="card"><h3>ระดับ</h3><div id="risk">-</div></div>
+</div>
+<div class="card" style="margin:8px"><h3>Log</h3><div id="log"></div>
+ <button onclick="startScan()">เริ่ม</button><button onclick="stopScan()">หยุด</button><button onclick="saveLog()">บันทึก</button></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');let a=0,s=1,t,col='#00bfff',flash=0;
+function rs(){c.width=c.height=Math.min(innerWidth,innerHeight*0.46)*0.9}rs();addEventListener('resize',rs);
+function dr(){x.clearRect(0,0,c.width,c.height);const cx=c.width/2,cy=c.height/2,r=cx*0.9;x.strokeStyle='#003566';for(let i=1;i<=4;i++){x.beginPath();x.arc(cx,cy,r*i/4,0,7);x.stroke()}for(let i=0;i<12;i++){x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+r*Math.cos(i*Math.PI/6),cy+r*Math.sin(i*Math.PI/6));x.stroke()}const g=x.createConicGradient(a,cx,cy);g.addColorStop(0,col+(flash?'ff':'66'));g.addColorStop(.12,'transparent');x.fillStyle=g;x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,r,a-.6,a);x.fill();a+=.05;if(s)requestAnimationFrame(dr)}
+function lg(t){document.getElementById('log').textContent=`[${new Date().toLocaleTimeString()}] ${t}\n`+document.getElementById('log').textContent}
+function dt(){const ip=[...Array(4)].map(()=>Math.floor(Math.random()*256)).join('.');const r=Math.random();let lv='ต่ำ',cs='status';col='#00bfff';flash=0;if(r>0.85){lv='สูงมาก';cs='danger';col='#ff0040';flash=1;navigator.vibrate&&navigator.vibrate([200,100,200])}else if(r>0.6){lv='ปานกลาง';cs='warn';col='#ffaa00'}document.getElementById('ip').textContent=ip;document.getElementById('risk').innerHTML=`<span class="${cs}">${lv}</span>`;document.getElementById('threat').textContent=r>0.6?'Port Scan':'ปกติ';lg(`IP ${ip} • ${lv}`)}
+function startScan(){if(s)return;s=1;dr();t=setInterval(dt,1800);lg('เริ่ม V10.2')}function stopScan(){s=0;clearInterval(t);lg('หยุด')}
+function saveLog(){const b=new Blob([document.getElementById('log').textContent],{type:'text/plain'});const u=URL.createObjectURL(b);const d=document.createElement('a');d.href=u;d.download=`radar-${Date.now()}.txt`;d.click();lg('บันทึกอัตโนมัติ')}
+startScan();dr();setInterval(()=>{if(document.getElementById('log').textContent)saveLog()},3600000);
+</script>
 </body>
 </html>
