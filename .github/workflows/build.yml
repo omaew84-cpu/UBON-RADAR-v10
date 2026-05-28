@@ -21,7 +21,7 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ubon-radar-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
