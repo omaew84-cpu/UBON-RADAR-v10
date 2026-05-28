@@ -1,96 +1,38 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>THAI-RADAR V12.1 REAL</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
-<style>
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{margin:0;background:#000814;color:#e2f3ff;font-family:'IBM Plex Sans Thai',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
-  header{padding:14px 0 8px;text-align:center}
-  h1{margin:0;font-size:26px;letter-spacing:1px}h1 span{color:#00bfff;text-shadow:0 0 18px #00bfff}
-  #radarWrap{position:relative;width:92vmin;max-width:420px;aspect-ratio:1;background:radial-gradient(circle at center,#001a33 0%,#000814 70%);border-radius:50%;border:1px solid #005a94;box-shadow:inset 0 0 40px #000,0 0 60px rgba(0,191,255,.15);overflow:hidden}
-  canvas{position:absolute;inset:0;width:100%;height:100%}
- .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
- .core{width:82px;height:82px;border-radius:50%;background:#000c1a;border:2px solid #00bfff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 25px #00bfff55,inset 0 0 15px #00bfff33;font-family:'JetBrains Mono',monospace;font-weight:700;color:#00bfff}
- .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:92vmin;max-width:420px;margin:14px 0}
- .card{background:#001d3a;border:1px solid #004777;border-radius:12px;padding:10px 12px}
- .label{font-size:11px;color:#7dcfff;opacity:.8;text-transform:uppercase}
- .value{font-size:16px;margin-top:2px;font-weight:600}.mono{font-family:'JetBrains Mono',monospace}
- .danger{color:#ff4d6d!important;animation:pulse.7s infinite}@keyframes pulse{50%{opacity:.6}}
-  #logWrap{width:92vmin;max-width:420px;flex:1;background:#000d1a;border:1px solid #003a66;border-radius:12px;display:flex;flex-direction:column;min-height:180px;margin-bottom:12px}
-  #logHead{padding:8px 12px;border-bottom:1px solid #003a66;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#7dcfff}
-  #log{flex:1;overflow:auto;padding:8px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5;color:#5eead4}
-  button{background:#00bfff;color:#00111f;border:0;padding:6px 12px;border-radius:8px;font-weight:700;font-size:13px;margin-left:6px}button:active{transform:scale(.96)}
-</style>
-</head>
-<body>
-<header><h1>THAI-<span>RADAR</span> <small style="font-size:13px;color:#5a7a94">V12.1</small></h1></header>
-
-<div id="radarWrap">
-  <canvas id="radar"></canvas>
-  <div class="center"><div class="core">THAI</div></div>
-</div>
-
+<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THAI-RADAR V12.2</title>
+<style>body{margin:0;background:#000814;color:#e2f3ff;font-family:system-ui}header{text-align:center;padding:12px}h1{margin:0}h1 span{color:#00bfff}#r{width:90vmin;max-width:400px;aspect-ratio:1;margin:auto;position:relative;border-radius:50%;background:#001529;border:1px solid #005}.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:90vmin;max-width:400px;margin:10px auto}.card{background:#001d3a;padding:8px;border-radius:10px;border:1px solid #004}.lab{font-size:11px;color:#7cf}.val{font-weight:700;margin-top:3px}.mono{font-family:monospace}#logw{width:90vmin;max-width:400px;margin:auto;background:#000c1a;border:1px solid #003; border-radius:10px;min-height:160px;display:flex;flex-direction:column}#logh{padding:6px 10px;border-bottom:1px solid #003;display:flex;justify-content:space-between}#log{flex:1;overflow:auto;padding:6px;font-family:monospace;font-size:12px;color:#5ee}button{background:#0bf;border:0;padding:5px 10px;border-radius:6px;font-weight:700}</style></head><body>
+<header><h1>THAI-<span>RADAR</span> V12.2</h1></header>
+<div id="r"><canvas id="c" style="width:100%;height:100%"></canvas></div>
 <div class="cards">
-  <div class="card"><div class="label">IP จริง</div><div id="ip" class="value mono">-</div></div>
-  <div class="card"><div class="label">เครือข่าย</div><div id="net" class="value">-</div></div>
-  <div class="card"><div class="label">ตำแหน่ง</div><div id="loc" class="value" style="font-size:14px">-</div></div>
-  <div class="card"><div class="label">ความเสี่ยง</div><div id="risk" class="value">-</div></div>
+ <div class="card"><div class="lab">IP จริง</div><div id="ip" class="val mono">-</div></div>
+ <div class="card"><div class="lab">เครือข่าย</div><div id="net" class="val">-</div></div>
+ <div class="card"><div class="lab">ตำแหน่ง</div><div id="loc" class="val">-</div></div>
+ <div class="card"><div class="lab">ความเสี่ยง</div><div id="risk" class="val">-</div></div>
 </div>
-
-<div id="logWrap">
-  <div id="logHead"><span>SYSTEM LOG</span><div><button id="scanBtn">สแกน</button><button id="saveBtn">บันทึก</button></div></div>
-  <div id="log"></div>
-</div>
-
-<script type="module">
-// ==== ใส่คีย์ของคุณตรงนี้ (ถ้ามี) ====
-const ABUSE_KEY = ''; // จาก abuseipdb.com (ฟรี)
-const LINE_TOKEN = ''; // จาก notify-bot.line.me (ถ้าต้องการแจ้งเตือน LINE)
-// =====================================
-
-import { Network } from 'https://cdn.jsdelivr.net/npm/@capacitor/network@5.0.7/dist/esm/index.js';
-
-// Radar animation
-const canvas=document.getElementById('radar'),ctx=canvas.getContext('2d');let w,h,cx,cy,r,angle=0,blips=[];
-function resize(){const rect=canvas.getBoundingClientRect();const dpr=Math.min(devicePixelRatio,2);canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;ctx.setTransform(1,0,0,1,0,0);ctx.scale(dpr,dpr);w=rect.width;h=rect.height;cx=w/2;cy=h/2;r=Math.min(cx,cy)-6}addEventListener('resize',resize);resize();
-function draw(){ctx.clearRect(0,0,w,h);ctx.strokeStyle='rgba(0,90,148,.35)';ctx.lineWidth=1;for(let i=1;i<=4;i++){ctx.beginPath();ctx.arc(cx,cy,r*i/4,0,7);ctx.stroke()}for(let i=0;i<12;i++){const a=i*Math.PI/6;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.stroke()}const grad=ctx.createConicGradient(angle-1,cx,cy);grad.addColorStop(0,'rgba(0,191,255,0)');grad.addColorStop(.75,'rgba(0,191,255,.08)');grad.addColorStop(.92,'rgba(0,191,255,.55)');grad.addColorStop(1,'rgba(0,191,255,.95)');ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,angle-1,angle);ctx.fill();angle+=.055;const now=Date.now();blips=blips.filter(b=>now-b.t<3000);blips.forEach(b=>{const a=1-(now-b.t)/3000,x=cx+Math.cos(b.a)*b.d,y=cy+Math.sin(b.a)*b.d;ctx.globalAlpha=a;ctx.fillStyle=b.c;ctx.shadowBlur=10;ctx.shadowColor=b.c;ctx.beginPath();ctx.arc(x,y,3.5,0,7);ctx.fill();ctx.shadowBlur=0});ctx.globalAlpha=1;requestAnimationFrame(draw)}draw();
-
-// UI elements
+<div id="logw"><div id="logh"><span>SYSTEM LOG</span><span><button onclick="check()">สแกน</button><button onclick="save()">บันทึก</button></span></div><div id="log"></div></div>
+<script>
+const ABUSE_KEY=''; const LINE_TOKEN='';
 const ipEl=document.getElementById('ip'),netEl=document.getElementById('net'),locEl=document.getElementById('loc'),riskEl=document.getElementById('risk'),logEl=document.getElementById('log');
-let logs=[];const t=()=>new Date().toLocaleTimeString('th-TH');
-function addLog(msg,level){logs.unshift(`[${t()}] ${msg}`);const d=document.createElement('div');d.textContent='> '+logs[0];d.style.color=level==='high'?'#ff5b7f':level==='mid'?'#ffd166':'#5eead4';logEl.prepend(d);if(logEl.children.length>200)logEl.lastChild.remove()}
+let logs=[]; function lg(m,c){logs.unshift(`[${new Date().toLocaleTimeString('th-TH')}] ${m}`);const d=document.createElement('div');d.textContent='> '+logs[0];d.style.color=c||'#5ee';logEl.prepend(d)}
 
-async function sendLine(text){if(!LINE_TOKEN)return;try{await fetch('https://notify-api.line.me/api/notify',{method:'POST',headers:{Authorization:'Bearer '+LINE_TOKEN,'Content-Type':'application/x-www-form-urlencoded'},body:'message='+encodeURIComponent(text)})}catch{}}
+// radar simple
+const cv=document.getElementById('c'),x=cv.getContext('2d');function sz(){cv.width=cv.height=400}sz();let a=0;function dr(){x.clearRect(0,0,400,400);x.strokeStyle='#004';for(let i=1;i<5;i++){x.beginPath();x.arc(200,200,40*i,0,7);x.stroke()}x.fillStyle='#0bf';x.globalAlpha=.6;x.beginPath();x.moveTo(200,200);x.arc(200,200,180,a-.6,a);x.fill();x.globalAlpha=1;a+=.05;requestAnimationFrame(dr)}dr();
 
-async function realCheck(){
+async function check(){
+ lg('เริ่มสแกน...','#7cf');
  try{
-  // 1. Network
-  let conn='unknown';try{const s=await Network.getStatus();conn=s.connectionType}catch{}netEl.textContent=conn;
-  // 2. Real IP
-  const ipInfo=await fetch('https://api.ipify.org?format=json').then(r=>r.json());const ip=ipInfo.ip;ipEl.textContent=ip;
-  // 3. Geo
-  const geo=await fetch(`https://ip-api.com/json/${ip}?fields=city,country,isp`).then(r=>r.json());locEl.textContent=`${geo.city}, ${geo.country}`;
-  // 4. Risk
-  let risk='ต่ำ',level='low',color='#00bfff';
-  if(ABUSE_KEY){const chk=await fetch(`https://api.abuseipdb.com/api/v2/check?ipAddress=${ip}&maxAgeInDays=90`,{headers:{Key:ABUSE_KEY,Accept:'application/json'}}).then(r=>r.json());const score=chk.data.abuseConfidenceScore;if(score>75){risk='สูงมาก';level='high';color='#ff3b5c'}else if(score>30){risk='ปานกลาง';level='mid';color='#ffd166'}}
-  else{if(geo.isp.toLowerCase().includes('host')||geo.isp.toLowerCase().includes('data')){risk='ปานกลาง';level='mid';color='#ffd166'}}
-  riskEl.textContent=risk;riskEl.className=level==='high'?'value danger':'value';riskEl.style.color=color;
-  // blip
-  blips.push({a:angle,d:r*0.6,c:color,t:Date.now()});
-  addLog(`IP ${ip} | ${geo.city} | ${geo.isp} | เสี่ยง ${risk}`,level);
-  if(level==='high'){speechSynthesis.speak(new SpeechSynthesisUtterance('ตรวจพบภัยคุกคามระดับสูง'));navigator.vibrate&&navigator.vibrate([200,80,200]);sendLine(`🚨 THAI-RADAR\nIP: ${ip}\nที่: ${geo.city}\nเสี่ยง: สูงมาก\nเวลา: ${t()}`);autoSave()}
- }catch(e){addLog('Error: '+e.message)}
+  netEl.textContent=navigator.connection?navigator.connection.effectiveType:'wifi';
+  // 1. IP - ใช้ https
+  const ipd=await fetch('https://api.ipify.org?format=json').then(r=>r.json()); ipEl.textContent=ipd.ip; lg('ได้ IP: '+ipd.ip);
+  // 2. Geo - ใช้ ipwho.is (https ฟรี)
+  const geo=await fetch(`https://ipwho.is/${ipd.ip}`).then(r=>r.json()); locEl.textContent=`${geo.city}, ${geo.country}`; lg(`ตำแหน่ง: ${geo.city}`);
+  // 3. Risk
+  let risk='ต่ำ',col='#5ee';
+  if(ABUSE_KEY){try{const ab=await fetch(`https://api.abuseipdb.com/api/v2/check?ipAddress=${ipd.ip}`,{headers:{Key:ABUSE_KEY}}).then(r=>r.json());const s=ab.data.abuseConfidenceScore;risk=s>75?'สูงมาก':s>30?'ปานกลาง':'ต่ำ';col=s>75?'#f55':s>30?'#fd6':'#5ee'}catch{}}
+  riskEl.textContent=risk; riskEl.style.color=col; lg('ความเสี่ยง: '+risk,col);
+  if(risk==='สูงมาก'){speechSynthesis.speak(new SpeechSynthesisUtterance('ตรวจพบภัยคุกคาม'));navigator.vibrate&&navigator.vibrate(200)}
+ }catch(e){ lg('ERROR: '+e.message,'#f55'); console.error(e) }
 }
+function save(){const b=new Blob([logs.join('\n')],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='radar.txt';a.click()}
 
-function autoSave(){const blob=new Blob([logs.join('\n')],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`thai-radar-${Date.now()}.txt`;a.click();URL.revokeObjectURL(a.href)}
-
-document.getElementById('scanBtn').onclick=realCheck;
-document.getElementById('saveBtn').onclick=()=>autoSave();
-
-addLog('ระบบพร้อมทำงาน - V12.1 REAL');realCheck();setInterval(realCheck,60000);
-</script>
-</body>
-</html>
+lg('ระบบพร้อม V12.2'); check(); setInterval(check,60000);
+</script></body></html>
