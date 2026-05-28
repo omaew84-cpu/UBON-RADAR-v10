@@ -1,17 +1,54 @@
+# Workflow to build an Android APK from a Capacitor project
 name: Build APK
-on: workflow_dispatch
+
+on:
+  # Allows manual triggering of the workflow from the Actions tab
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: {node-version: 20}
-      - run: npm i @capacitor/core @capacitor/android @capacitor/cli
-      - run: npx cap add android
-      - run: npx cap copy android
-      - uses: actions/setup-java@v4
-        with: {distribution: temurin, java-version: 17}
-      - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
-      - uses: actions/upload-artifact@v4
-        with: {name: UBON-RADAR-v10-apk, path: android/app/build/outputs/apk/debug/app-debug.apk}
+      # Check out the source code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Install Capacitor dependencies
+      - name: Install Dependencies
+        run: npm i @capacitor/core @capacitor/android @capacitor/cli
+
+      # Initialize Android project
+      - name: Add Android Platform
+        run: npx cap add android
+
+      # Sync web assets to Android project
+      - name: Copy Assets to Android
+        run: npx cap copy android
+
+      # Setup Java environment required by Gradle
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Build the debug APK using Gradle
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      # Upload the generated APK as a workflow artifact
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UBON-RADAR-v10-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
