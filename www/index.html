@@ -1,38 +1,100 @@
-<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THAI-RADAR V12.2</title>
-<style>body{margin:0;background:#000814;color:#e2f3ff;font-family:system-ui}header{text-align:center;padding:12px}h1{margin:0}h1 span{color:#00bfff}#r{width:90vmin;max-width:400px;aspect-ratio:1;margin:auto;position:relative;border-radius:50%;background:#001529;border:1px solid #005}.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:90vmin;max-width:400px;margin:10px auto}.card{background:#001d3a;padding:8px;border-radius:10px;border:1px solid #004}.lab{font-size:11px;color:#7cf}.val{font-weight:700;margin-top:3px}.mono{font-family:monospace}#logw{width:90vmin;max-width:400px;margin:auto;background:#000c1a;border:1px solid #003; border-radius:10px;min-height:160px;display:flex;flex-direction:column}#logh{padding:6px 10px;border-bottom:1px solid #003;display:flex;justify-content:space-between}#log{flex:1;overflow:auto;padding:6px;font-family:monospace;font-size:12px;color:#5ee}button{background:#0bf;border:0;padding:5px 10px;border-radius:6px;font-weight:700}</style></head><body>
-<header><h1>THAI-<span>RADAR</span> V12.2</h1></header>
-<div id="r"><canvas id="c" style="width:100%;height:100%"></canvas></div>
-<div class="cards">
- <div class="card"><div class="lab">IP จริง</div><div id="ip" class="val mono">-</div></div>
- <div class="card"><div class="lab">เครือข่าย</div><div id="net" class="val">-</div></div>
- <div class="card"><div class="lab">ตำแหน่ง</div><div id="loc" class="val">-</div></div>
- <div class="card"><div class="lab">ความเสี่ยง</div><div id="risk" class="val">-</div></div>
-</div>
-<div id="logw"><div id="logh"><span>SYSTEM LOG</span><span><button onclick="check()">สแกน</button><button onclick="save()">บันทึก</button></span></div><div id="log"></div></div>
-<script>
-const ABUSE_KEY=''; const LINE_TOKEN='';
-const ipEl=document.getElementById('ip'),netEl=document.getElementById('net'),locEl=document.getElementById('loc'),riskEl=document.getElementById('risk'),logEl=document.getElementById('log');
-let logs=[]; function lg(m,c){logs.unshift(`[${new Date().toLocaleTimeString('th-TH')}] ${m}`);const d=document.createElement('div');d.textContent='> '+logs[0];d.style.color=c||'#5ee';logEl.prepend(d)}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>THAI-RADAR V13 PROTECT</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#000814;color:#e2f3ff;font-family:system-ui,-apple-system,'IBM Plex Sans Thai',sans-serif;height:100%}
+header{text-align:center;padding:14px 0 6px}
+h1{margin:0;font-size:26px;letter-spacing:1px}
+h1 span{color:#00bfff;text-shadow:0 0 12px #00bfff}
+#radarWrap{position:relative;width:92vmin;max-width:420px;aspect-ratio:1;margin:0 auto;background:radial-gradient(circle at center,#001a33 0%,#000814 70%);border-radius:50%;border:1px solid #005a94;box-shadow:inset 0 0 40px #000,0 0 40px rgba(0,191,255,.12);overflow:hidden}
+canvas{width:100%;height:100%;display:block}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:92vmin;max-width:420px;margin:14px auto}
+.card{background:#001d3a;border:1px solid #004777;border-radius:12px;padding:10px 12px}
+.label{font-size:11px;color:#7dcfff;opacity:.85;text-transform:uppercase;letter-spacing:.5px}
+.value{font-size:16px;margin-top:3px;font-weight:700;color:#e2f3ff}
+.mono{font-family:ui-monospace,Menlo,monospace}
+.danger{color:#ff4d6d!important;animation:pulse .8s infinite}
+@keyframes pulse{50%{opacity:.6}}
+#logWrap{width:92vmin;max-width:420px;margin:0 auto 16px;background:#000c1a;border:1px solid #003a66;border-radius:12px;display:flex;flex-direction:column;min-height:180px}
+#logHead{padding:8px 12px;border-bottom:1px solid #003a66;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#7dcfff}
+#log{flex:1;overflow:auto;padding:8px;font-family:ui-monospace,monospace;font-size:12px;line-height:1.5;color:#5eead4;background:transparent}
+button{background:#00bfff;color:#00111f;border:0;padding:6px 12px;border-radius:8px;font-weight:700;font-size:13px;margin-left:6px}
+button:active{transform:scale(.96)}
+</style>
+</head>
+<body>
+<header><h1>THAI-<span>RADAR</span> <small style="font-size:13px;color:#5a7a94">V13</small></h1></header>
 
-// radar simple
-const cv=document.getElementById('c'),x=cv.getContext('2d');function sz(){cv.width=cv.height=400}sz();let a=0;function dr(){x.clearRect(0,0,400,400);x.strokeStyle='#004';for(let i=1;i<5;i++){x.beginPath();x.arc(200,200,40*i,0,7);x.stroke()}x.fillStyle='#0bf';x.globalAlpha=.6;x.beginPath();x.moveTo(200,200);x.arc(200,200,180,a-.6,a);x.fill();x.globalAlpha=1;a+=.05;requestAnimationFrame(dr)}dr();
+<div id="radarWrap"><canvas id="radar"></canvas></div>
+
+<div class="cards">
+  <div class="card"><div class="label">IP จริง</div><div id="ip" class="value mono">-</div></div>
+  <div class="card"><div class="label">เครือข่าย</div><div id="net" class="value">-</div></div>
+  <div class="card"><div class="label">ตำแหน่ง</div><div id="loc" class="value">-</div></div>
+  <div class="card"><div class="label">ความเสี่ยง</div><div id="risk" class="value">-</div></div>
+</div>
+
+<div id="logWrap">
+  <div id="logHead"><span>SYSTEM LOG</span><div><button onclick="check()">สแกน</button><button onclick="saveLog()">บันทึก</button></div></div>
+  <div id="log"></div>
+</div>
+
+<script>
+// ===== ใส่ KEY ของคุณ =====
+const ABUSE_KEY = 'xxxxxxxx';
+const SAFE_BROWSING_KEY = 'yyyyyyyy';
+const LINE_TOKEN = '';
+// ==========================
+
+const ipEl=document.getElementById('ip'),netEl=document.getElementById('net'),locEl=document.getElementById('loc'),riskEl=document.getElementById('risk'),logEl=document.getElementById('log');
+let logs=[]; const now=()=>new Date().toLocaleTimeString('th-TH');
+function addLog(t,c='#5eead4'){logs.unshift(`[${now()}] ${t}`);const d=document.createElement('div');d.textContent='> '+logs[0];d.style.color=c;logEl.prepend(d);if(logEl.children.length>200)logEl.lastChild.remove();}
+
+// Radar
+const cvs=document.getElementById('radar'),ctx=cvs.getContext('2d');let w,h,cx,cy,r,ang=0;
+function resize(){const b=cvs.getBoundingClientRect();const dpr=Math.min(window.devicePixelRatio||1,2);cvs.width=b.width*dpr;cvs.height=b.height*dpr;ctx.setTransform(1,0,0,1,0,0);ctx.scale(dpr,dpr);w=b.width;h=b.height;cx=w/2;cy=h/2;r=Math.min(cx,cy)-4}
+addEventListener('resize',resize);resize();
+function draw(){ctx.clearRect(0,0,w,h);ctx.strokeStyle='rgba(0,90,148,.35)';for(let i=1;i<=4;i++){ctx.beginPath();ctx.arc(cx,cy,r*i/4,0,Math.PI*2);ctx.stroke()}const g=ctx.createConicGradient(ang-1,cx,cy);g.addColorStop(0,'rgba(0,191,255,0)');g.addColorStop(.8,'rgba(0,191,255,.3)');g.addColorStop(1,'rgba(0,191,255,.9)');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,ang-1,ang);ctx.fill();ang+=0.05;requestAnimationFrame(draw)}draw();
 
 async function check(){
- lg('เริ่มสแกน...','#7cf');
+ addLog('เริ่มสแกน...','#7dcfff');
  try{
-  netEl.textContent=navigator.connection?navigator.connection.effectiveType:'wifi';
-  // 1. IP - ใช้ https
-  const ipd=await fetch('https://api.ipify.org?format=json').then(r=>r.json()); ipEl.textContent=ipd.ip; lg('ได้ IP: '+ipd.ip);
-  // 2. Geo - ใช้ ipwho.is (https ฟรี)
-  const geo=await fetch(`https://ipwho.is/${ipd.ip}`).then(r=>r.json()); locEl.textContent=`${geo.city}, ${geo.country}`; lg(`ตำแหน่ง: ${geo.city}`);
-  // 3. Risk
-  let risk='ต่ำ',col='#5ee';
-  if(ABUSE_KEY){try{const ab=await fetch(`https://api.abuseipdb.com/api/v2/check?ipAddress=${ipd.ip}`,{headers:{Key:ABUSE_KEY}}).then(r=>r.json());const s=ab.data.abuseConfidenceScore;risk=s>75?'สูงมาก':s>30?'ปานกลาง':'ต่ำ';col=s>75?'#f55':s>30?'#fd6':'#5ee'}catch{}}
-  riskEl.textContent=risk; riskEl.style.color=col; lg('ความเสี่ยง: '+risk,col);
-  if(risk==='สูงมาก'){speechSynthesis.speak(new SpeechSynthesisUtterance('ตรวจพบภัยคุกคาม'));navigator.vibrate&&navigator.vibrate(200)}
- }catch(e){ lg('ERROR: '+e.message,'#f55'); console.error(e) }
-}
-function save(){const b=new Blob([logs.join('\n')],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='radar.txt';a.click()}
+  netEl.textContent = navigator.connection?.effectiveType || '4g';
+  const ipData = await fetch('https://api.ipify.org?format=json').then(r=>r.json());
+  ipEl.textContent = ipData.ip; addLog('ได้ IP: '+ipData.ip);
 
-lg('ระบบพร้อม V12.2'); check(); setInterval(check,60000);
-</script></body></html>
+  const geo = await fetch(`https://ipapi.co/${ipData.ip}/json/`).then(r=>r.json());
+  locEl.textContent = `${geo.city||'-'}, ${geo.country_name||''}`; addLog('ตำแหน่ง: '+locEl.textContent);
+
+  let risk='ต่ำ', color='#5eead4';
+  // AbuseIPDB
+  if(ABUSE_KEY && ABUSE_KEY!=='xxxxxxxx'){
+    try{
+      const ab = await fetch(`https://api.abuseipdb.com/api/v2/check?ipAddress=${ipData.ip}&maxAgeInDays=90`,{headers:{Key:ABUSE_KEY,Accept:'application/json'}}).then(r=>r.json());
+      const score = ab.data.abuseConfidenceScore;
+      if(score>75){risk='สูงมาก - บล็อก';color='#ff4d6d'} else if(score>30){risk='ปานกลาง';color='#ffd166'}
+      addLog(`AbuseIPDB score: ${score}`,color);
+      if(score>75){navigator.vibrate?.([200,80,300]); speechSynthesis.speak(new SpeechSynthesisUtterance('ตรวจพบการโจมตี')); }
+    }catch(e){addLog('AbuseIPDB error','orange')}
+  } else { addLog('ยังไม่ได้ใส่ AbuseIPDB key จริง','#888') }
+
+  riskEl.textContent=risk; riskEl.style.color=color; if(risk.includes('สูง')) riskEl.classList.add('danger'); else riskEl.classList.remove('danger');
+  addLog('ความเสี่ยง: '+risk,color);
+
+ }catch(e){ addLog('ERROR: '+e.message,'#ff4d6d'); console.error(e) }
+}
+
+function saveLog(){const blob=new Blob([logs.join('
+')],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`thai-radar-${Date.now()}.txt`;a.click()}
+
+// ป้องกันขโมยคลิปบอร์ด
+document.addEventListener('visibilitychange', async ()=>{ if(document.hidden){ try{ const t=await navigator.clipboard.readText(); if(/password|รหัส|OTP|\d{4,6}/i.test(t)){ addLog('⚠️ คลิปบอร์ดมีข้อมูลเสี่ยง','#ffd166') } }catch{} } });
+
+addLog('ระบบพร้อม V13 PROTECT'); check(); setInterval(check,60000);
+</script>
+</body>
+</html>
